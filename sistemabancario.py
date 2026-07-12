@@ -1,84 +1,97 @@
-import os
 from rich import print
 from rich.panel import Panel
 
+saldo = 0
+SAQUES_DIARIO = 3
+valor_saque = 0
+depositos = 0
+valor_deposito = 0
 
-class NegativeValueError(Exception):
-    pass
+usuarios = []
+contas = []
 
+def saque(valor):
+    global saldo
+    global SAQUES_DIARIO
+    global valor_saque
+    if SAQUES_DIARIO == 0:
+        print("[red]Você excedeu o saque diário")
+    elif saldo <= 0:
+        print("[red]Valor inválido , você deve informar um valor acima de 0")
+    elif saldo < valor:
+        print("[red]Você não tem dinheiro suficiente para sacar")
+    elif valor > 500:
+        print("[red]O valor máximo é de [green]500R$")
+    else:
+        saldo -= valor
+        valor_saque += valor
+        SAQUES_DIARIO -= 1
+        #extrato()
 
-class SistemaBancario:
-    """
-     Representa um sistema bancário simples.
+def deposito(valor):
+    global saldo
+    global depositos
+    global valor_deposito
 
-    A classe permite realizar operações de depósito, saque e consulta
-    de extrato. Também controla o saldo da conta, a quantidade de
-    depósitos realizados, o valor total depositado, o número de saques
-    disponíveis e o valor total sacado.
-
-    Attributes:
-        _saldo (float): Saldo atual da conta.
-        _depositos (int): Quantidade de depósitos realizados.
-        _valor_deposito (float): Valor total depositado.
-        SAQUES (int): Quantidade de saques diários disponíveis.
-        _valor_saque (float): Valor total sacado.
-    """
-    def __init__(self,saldo = 0):
-        self._saldo = saldo
-        self._depositos = 0
-        self._valor_deposito = 0
-        self.SAQUES = 3
-        self._valor_saque = 0
-
-
-    @property
-    def saldo(self):
-        return self._saldo
-
-    def depositar(self,dinheiro):
-        if dinheiro <= 0:
-            os.system("cls")
-            raise NegativeValueError("Valor inválido, o valor do depósito não pode ser negativo e nem ter nenhum valor")
-        self._saldo += dinheiro
-        self._depositos+= 1
-        self._valor_deposito += dinheiro
-        os.system("cls")
-        print(f"Você depositou [cyan]R${dinheiro:,.2f}[/] e sua conta tem [green]R${self._saldo:,.2f}")
+    saldo+= valor
+    depositos += 1
+    valor_deposito += valor
 
 
-    def sacar(self,dinheiro):
-        if dinheiro <= 0:
-            os.system("cls")
-            raise NegativeValueError("Valor inválido, o valor do saque não pode ser negativo e nem ter nenhum valor")
-        elif self.SAQUES == 0:
-            raise PermissionError("Você não tem SAQUES diponíveis")
-        elif dinheiro > 500:
-            raise PermissionError("O valor máximo de saque é de R$500")
-        elif dinheiro > self._saldo:
-            raise PermissionError(f"Você não tem dinheiro suficiente para sacar o valor de R${dinheiro:,.2f}")
+def plural(texto,obj):
+    if obj > 1:
+        return f"{texto}s"
+    else:
+        return texto
 
-        self._saldo -= dinheiro
-        self.SAQUES -= 1
-        self._valor_saque += dinheiro
-        os.system('cls')
-        print(f"Você sacou [cyan]R${dinheiro:,.2f}[/] e sua conta tem [green]R${self._saldo:,.2f}")
-
-
-    def extrato(self) -> str:
-        def plural(texto,obj):
-            if obj > 1:
-                return f"{texto}s"
-            else:
-                return texto
+def extrato():
+    if len(usuarios) > 0:
+        extrato = (f"""[cyan]{usuarios[-1][0]}[/][bright_white] esse é seu extrato atual:
+Saldo atual [green]R&{saldo:,.2f}[/]
+Saques diários: [yellow]{SAQUES_DIARIO}[/]
+No total você realizou [blue]{depositos} {plural("depósito", depositos)}[/] que gerou uma renda de [green]R${valor_deposito:,.2f}[/]
+Também efetuou [purple]{3 - SAQUES_DIARIO} {plural("saque", 3 - SAQUES_DIARIO)}[/] que retornou no total [green]R${valor_saque:,.2f}[/][/]""")
+    else:
+        extrato = "[red]Crie uma conta para ver seu [orange3]extrato"
 
 
-        extrato = (f"""[bright_white]Saldo atual [green]R&{self._saldo:,.2f}[/]
-Saques diários: [yellow]{self.SAQUES}[/]
-No total você realizou [blue]{self._depositos} {plural("depósito",self._depositos)}[/] que gerou uma renda de [green]R${self._valor_deposito:,.2f}[/]
-Também efetuou [purple]{3 - self.SAQUES} {plural("saque", 3 - self.SAQUES)}[/] que retornou no total [green]R${self._valor_saque:,.2f}[/][/]""")
+    painel = Panel(extrato, title="---EXTRATO---", width=75, border_style="orange3")
+    print(painel)
 
-        painel = Panel(extrato,title="---EXTRATO---",width=75,border_style="orange3")
-        print(painel)
+def criar_usuario():
+    encerrado = False
+    nome = str(input("Digite seu nome: ").strip()).title()
+
+    dta_nasc = int(input("Digite sua data de Nascimento: "))
+
+    cpf = input("Digite seu CPF: ")
+
+    if len(cpf) > 11 or len(cpf) < 11:
+        print("[red]Digite um cpf válido")
+        return
+
+    if len(usuarios) > 0:
+        for usuario in usuarios:
+            if cpf == usuario[2]:
+                print("[red]CPF Já cadastrado")
+                encerrado = True
+
+    if encerrado == True:
+        return
+
+    endereco = input("Digite seu Endereço: ").strip().title()
+
+
+    usuarios.append((nome,dta_nasc,cpf,endereco))
+    print("[green]Usuário cadastrado[/]")
+    criar_conta(usuarios[-1])
+
+def criar_conta(usuario):
+    agencia = "001"
+    conta = range(1,10)
+    contas.append((agencia,conta,))
+    print("[green]Conta bancaria criada")
+
 
 
 

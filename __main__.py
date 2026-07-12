@@ -1,38 +1,38 @@
 import os
 from rich import print
-from sistemabancario import SistemaBancario, NegativeValueError
+from sistemabancario import *
 
 
 def main():
-    conta = SistemaBancario()
     while True:
-        print("""Digite [blue]D[/] para [blue]Depositar[/]
+        print("""Digite [green]C[/] para [green]Cadastrar[/]
+Digite [blue]D[/] para [blue]Depositar[/]
 Digite [yellow]S[/] para [yellow]Sacar[/]
 Digite [orange3]E[/] para  ver o [orange3]EXTRATO[/]
 Digite [red]Q[/] para [red]Sair""")
 
+
         opcao = input().lower().strip()
         os.system('cls')
 
+        if opcao == "c":
+            criar_usuario()
 
-        if opcao == "d":
+
+        elif opcao == "d":
             try:
                 dinheiro = float(input("Digite o dinheiro que deseja depositar: "))
-                conta.depositar(dinheiro)
+                deposito(dinheiro)
                 continue
             except ValueError:
                 os.system('cls')
                 print("[red]Digite um valor válido para essa operação")
                 continue
 
-            except NegativeValueError as erro:
-                print(f"[red]{erro}")
-                continue
-
         elif opcao == "s":
             try:
                 dinheiro = float(input("Digite o dinheiro que deseja sacar: "))
-                conta.sacar(dinheiro)
+                saque(dinheiro)
 
             except ValueError:
                 os.system('cls')
@@ -44,7 +44,7 @@ Digite [red]Q[/] para [red]Sair""")
 
         elif opcao == "e":
             try:
-                conta.extrato()
+                extrato()
             except Exception as erro:
                 print(f"[red] {erro}")
 
